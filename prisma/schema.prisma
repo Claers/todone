@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:/home/flo/workspace/todone/dev.db"
+}
+
+model TaskStatus {
+  id               Int      @id @default(autoincrement())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  name             String
+  isDefaultStatus  Boolean  @default(false)
+  isDoneStatus     Boolean  @default(false)
+  isArchivedStatus Boolean  @default(false)
+  tasks            Task[]
+}
+
+model Task {
+  id                  Int           @id @default(autoincrement())
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  title               String
+  description         String?
+  markdownDescription String?
+  done                Boolean       @default(false)
+  TaskStatus          TaskStatus?   @relation(fields: [taskStatusId], references: [id])
+  taskStatusId        Int?
+  tags                Tag[]
+  dueDate             DateTime?
+  estimatedDuration   Int?
+  durationType        DurationType? @relation(fields: [durationTypeId], references: [id])
+  durationTypeId      Int?
+}
+
+model DurationType {
+  id                 Int      @id @default(autoincrement())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  name               String
+  isBase             Boolean  @default(false)
+  multiplierFromBase Float    @default(1)
+  tasks              Task[]
+}
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  tasks     Task[]
+}

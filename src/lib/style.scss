@@ -1,0 +1,28 @@
+@import "./theme.scss";
+
+* {
+    font-family: $font-family;
+}
+
+html,
+body {
+    @apply h-full overflow-hidden;
+}
+
+input.checkbox,
+input.radius {
+    background-color: rgb(var(--color-surface-500)) !important;
+    border-color: rgb(var(--color-surface-400)) !important;
+    &:checked {
+        background-color: rgb(var(--color-primary-500)) !important;
+        border-color: rgb(var(--color-primary-400)) !important;
+    }
+}
+
+.variant-filled-error {
+    @apply bg-error-500;
+}
+
+.variant-filled-success {
+    @apply bg-success-500;
+}
