@@ -46,9 +46,6 @@ export const actions: Actions = {
         if (!id) {
             fail(400, { id, missing: true})
         }
-        console.log("id", id)
-        console.log("description", description)
-
         // if (!name) {
         //     fail(400, { name, missing: true})
         // }

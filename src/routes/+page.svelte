@@ -64,7 +64,7 @@
 		<TaskStatusList />
 	{/if}
 </div> -->
-<div class="container p-10 space-y-4 w-full max-w-full">
+<div class="container p-10 space-y-4 w-full md:max-w-[1024px] lg:max-w-none">
 	<!-- Buttons for filters -->
 	<RadioGroup active="variant-filled-primary" hover="hover:variant-soft-primary">
 		<RadioItem bind:group={filter} name="filter" value="all">All</RadioItem>

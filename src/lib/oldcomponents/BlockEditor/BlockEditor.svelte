@@ -11,7 +11,6 @@
 	let isReady: any;
 	let isEditorReady: boolean;
 	onMount(async () => {
-		console.log('Mounted');
 		if (typeof window === 'undefined') return;
 		let Header = (await import('@editorjs/header')).default;
 		let Paragraph = (await import('@editorjs/paragraph')).default;

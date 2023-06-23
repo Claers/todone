@@ -25,7 +25,6 @@
 
 	function swipeGestureHandler(event) {
 		let direction = event.detail.direction;
-		console.log(direction);
 		// If is on a mobile device or small screen
 		if (window.innerWidth < 1024) {
 			if (direction === 'right') {

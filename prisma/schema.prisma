@@ -36,6 +36,7 @@ model Task {
   estimatedDuration   Int?
   durationType        DurationType? @relation(fields: [durationTypeId], references: [id])
   durationTypeId      Int?
+  order               Int           @default(0)
 }
 
 model DurationType {

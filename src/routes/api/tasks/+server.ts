@@ -2,37 +2,37 @@ import type { RequestHandler } from './$types';
 import type { Actions } from '@sveltejs/kit';
 import { fail, json } from '@sveltejs/kit';
 import db from "$lib/server/database";
+import type { TaskProps } from '$lib/components/Task/Task.svelte';
 
 export const GET: RequestHandler = async () => {
-    const taskStatus = await db.task.findMany();
-    return json(taskStatus);
+    const tasks = await db.task.findMany({
+        orderBy: [{
+            order: "asc",
+        }]
+    });
+    return json(tasks);
 };
 
 
 export const POST: RequestHandler = async ({ request }) => {
-    const data = await request.json();
+    const data: TaskProps | TaskProps[] = await request.json();
     const id = data.id;
     delete data.id
-    // Check if there the done status is set to true
-    if (data.done) {
-        // Set the status to the first isDoneStatus
-        const isDoneStatus = await db.taskStatus.findFirst({
-            where: { isDoneStatus: true },
-        });
-        if (!isDoneStatus) {
-            return new Response(
-                JSON.stringify({
-                    error: 'No isDoneStatus found',
-                }),
-                {
-                    status: 400,
-                });
+    let updatedData;
+    if (!id) {
+        updatedData = [];
+        for (const task of data as TaskProps[]) {
+            updatedData.push(await db.task.update({
+                where: { id: task.id },
+                data: task,
+            }));
         }
-        data.taskStatusId = isDoneStatus.id;
+        
+    } else {
+        updatedData = await db.task.update({
+            where: { id: id },
+            data: data,
+        });
     }
-    const task = await db.task.update({
-        where: { id: Number(id) },
-        data: data,
-    });
-    return json(task);
+    return json(updatedData);
 };

@@ -12,7 +12,6 @@
 	export let startDate: Date;
 	export let endDate: Date;
 	let dateType = DateToTextType.Day;
-	console.log(endDate);
 	let difference = startDate.getTime() - endDate.getTime();
 	// Convert to days
 	difference = Math.floor(difference / (1000 * 60 * 60 * 24));
