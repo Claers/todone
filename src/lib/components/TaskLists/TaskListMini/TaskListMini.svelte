@@ -5,6 +5,11 @@
 <script lang="ts">
 	import Task, { TaskStyle, type TaskProps } from '$lib/components/Task/Task.svelte';
 	import { flip } from 'svelte/animate';
+	import Fa from 'svelte-fa/src/fa.svelte';
+	import { faPlus } from '@fortawesome/free-solid-svg-icons';
+	import { drawerStore } from '@skeletonlabs/skeleton';
+	import { Drawers } from '$lib/drawers/drawers';
+
 	// Get QueryClient from the context
 	const dragDuration = 300;
 
@@ -24,5 +29,11 @@
 				</div>
 			{/each}
 		{/if}
+		<button
+			class="flex w-full justify-center items-center group border-none btn bg-primary-500"
+			on:click={() => drawerStore.open({ id: Drawers.CreateTask })}
+		>
+			<Fa icon={faPlus} />
+		</button>
 	{/await}
 </div>

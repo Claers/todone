@@ -47,7 +47,6 @@
 					dragElements.endPosition.pos = DragPlaceholderPlace.Before;
 				}
 			} else {
-				
 				if (dragElements.endPosition?.y > size.height / 2) {
 					dragElements.endPosition.pos = DragPlaceholderPlace.After;
 				} else {
@@ -65,6 +64,13 @@
 	draggable="true"
 	class={className}
 	on:dragover|preventDefault={(event) => {
+		// If the drag is over the border of the component ignore it but don't ignore others
+		// Get the borders
+		let borders = document.querySelectorAll('.border-x-2');
+		// Node list to array
+		let bordersArray = Array.prototype.slice.call(borders);
+		// if the target element is in the borders, ignore it
+		if (bordersArray.includes(event.target)) return (endPosition = endPosition);
 		// If event don't have offsetX, offsetY, it's a touch event so calc
 		// the position based on the clientX, clientY and the component position
 		if (!event.offsetX) {

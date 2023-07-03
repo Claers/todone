@@ -2,6 +2,7 @@ import type { PageServerLoad } from './$types';
 import { fail, type Actions } from '@sveltejs/kit';
 import db from "$lib/server/database";
 import type { Task } from '@prisma/client';
+import type { TaskProps } from '$lib/components/Task/Task.svelte';
 
 
 export const load = (async () => {
@@ -10,24 +11,29 @@ export const load = (async () => {
 
 export const actions: Actions = {
     create: async ({ request }) => { 
-        const formData = await request.formData();
-        const name = formData.get('name');
-        const description = formData.get('description');
-        const markdownDescription = formData.get('markdownDescription');
-        const status = formData.get('taskStatusId');
-        if (!name) {
-            fail(400, { name, missing: true})
+        const formData: FormData = await request.formData();
+        const title = formData.get('title');
+        let fails = [];
+        if (!title || title === '') {
+            fails.push({fields: ["title"], missing: true, message: "Le titre est requis"})
+            // return fail(400, {fields: ["title"], missing: true, message: "Le titre est requis"})
         }
-        if (!status) {
-            fail(400, { status, missing: true})
+        const dueDate = formData.get('dueDate');
+        if (!dueDate || dueDate === '') {
+            fails.push({fields: ["dueDate"], missing: true, message: "La date d'échéance est requise"})
+            // return fail(400, { fields: ["dueDate"], missing: true, message: "La date d'échéance est requise" })
         }
+        if (fails.length > 0) {
+            return fail(400, fails)
+        }
+        // Find the next order number
+        const order = await db.task.count()
         const taskData: Task = {
-            ...formData,
-            title: name as string,
-            description: description as string,
-            markdownDescription: markdownDescription as string,
-            taskStatusId: parseInt(status as string)
-
+            title: title as string,
+            description: formData.get('description') as string,
+            done: formData.get('done') === 'true' ? true : false,
+            dueDate: new Date(formData.get('dueDate') as string),
+            order: order + 1,
         }
         const task = await db.task.create({ data: taskData })
         return {
@@ -44,7 +50,7 @@ export const actions: Actions = {
         const description = formData.get('description');
         const status = formData.get('taskStatusId');
         if (!id) {
-            fail(400, { id, missing: true})
+           return fail(400, { id, missing: true})
         }
         // if (!name) {
         //     fail(400, { name, missing: true})
@@ -71,7 +77,7 @@ export const actions: Actions = {
         const formData = await request.formData();
         const id = formData.get('id');
         if (!id) {
-            fail(400, { id, missing: true})
+            return fail(400, { id, missing: true})
         }
         await db.task.delete({ where: { id: parseInt(id as string) } })
         return {

@@ -1,3 +1,4 @@
 export enum Drawers {
-    "CreateTaskStatus",
+    CreateTaskStatus = "CreateTaskStatus",
+    CreateTask = "CreateTask",
 }

@@ -10,6 +10,7 @@ export function fieldUpdatedToast(fieldName: string): ToastSettings {
     return toastSettings;
 }
 
+
 export function errorToast(error: string): ToastSettings {
     const toastSettings: ToastSettings = {
         message: error,

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '@fontsource/outfit';
-	import '../theme.postcss';
+	// import '../theme.postcss';
 	// import '@skeletonlabs/skeleton/styles/partials/variants.css';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import type { LayoutData } from './$types';
@@ -8,7 +8,7 @@
 	// Your selected Skeleton theme:
 	import '$lib/style.scss';
 	// This contains the bulk of Skeletons required styles:
-	// import '@skeletonlabs/skeleton/themes/theme-crimson.css';
+	import '@skeletonlabs/skeleton/themes/theme-skeleton.css';
 	import '@skeletonlabs/skeleton/styles/skeleton.css';
 	import 'bytemd/dist/index.css';
 
@@ -21,7 +21,19 @@
 	import Navigation from '$lib/components/Navigation/Navigation.svelte';
 	import BurgerMenu from '$lib/components/BurgerMenu/BurgerMenu.svelte';
 	import Logo from '$lib/components/Logo/Logo.svelte';
+	import Breadcrums from '$lib/components/Breadcrums/Breadcrums.svelte';
 	export let data: LayoutData;
+	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+	import { storePopup } from '@skeletonlabs/skeleton';
+	import { Modal } from '@skeletonlabs/skeleton';
+	import { Drawers } from '$lib/drawers/drawers';
+	import CreateTask from '$lib/drawers/CreateTask/CreateTask.svelte';
+
+	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+
+	// const tasksData = data.queryClient.fetchQuery('tasks', async () =>
+	// 	(await fetch('api/tasks')).json()
+	// );
 
 	function swipeGestureHandler(event) {
 		let direction = event.detail.direction;
@@ -39,15 +51,22 @@
 <!-- Make Invisble  -->
 <QueryClientProvider client={data.queryClient}>
 	<Toast />
+	<Modal />
 	<div
 		id="swipe"
 		use:swipe={{ timeframe: 300, minSwipeDistance: 10, touchAction: 'pan-y' }}
 		on:swipe={swipeGestureHandler}
 	>
-		<AppBar>
+		<AppBar
+			gridColumns="grid-cols-3"
+			border="border-primary-800 border-b-4 "
+			slotDefault="place-self-center"
+			slotTrail="place-content-end"
+		>
 			<svelte:fragment slot="lead">
 				<BurgerMenu />
 			</svelte:fragment>
+			<Breadcrums />
 		</AppBar>
 	</div>
 
@@ -65,8 +84,11 @@
 				<Navigation />
 			</div>
 		{/if}
+		{#if $drawerStore.id === Drawers.CreateTask}
+			<CreateTask />
+		{/if}
 	</Drawer>
-	<AppShell slotSidebarLeft="bg-surface-500/5 w-0 lg:w-64">
+	<AppShell slotSidebarLeft="bg-surface-500/5 w-0 lg:w-64 border-primary-800 border-r-4 ">
 		<!-- (header) -->
 		<svelte:fragment slot="sidebarLeft"><Navigation /></svelte:fragment>
 		<!-- (sidebarRight) -->
@@ -76,7 +98,7 @@
 		<div
 			use:swipe={{ timeframe: 300, minSwipeDistance: 10, touchAction: 'pan-y' }}
 			on:swipe={swipeGestureHandler}
-			class="w-full h-full"
+			class="w-full h-full bg-surface-700"
 		>
 			<slot />
 		</div>
@@ -198,5 +220,16 @@
 
 	:global(.cm-s-default .cm-builtin) {
 		color: #3b82f6;
+	}
+
+	:global(.input-custom),
+	:global(.dark .input-custom) {
+		@apply overflow-hidden;
+		@apply bg-secondary-800;
+		@apply border-secondary-500;
+		@apply border-2;
+		&:placeholder {
+			@apply text-gray-400;
+		}
 	}
 </style>

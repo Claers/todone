@@ -50,7 +50,7 @@ export const actions: Actions = {
         const formData = await request.formData();
         const id = formData.get('id');
         if (!id) {
-            fail(400, { id, missing: true})
+            return fail(400, { id, missing: true})
         }
         await db.taskStatus.delete({ where: { id: parseInt(id as string) } })
         return {
