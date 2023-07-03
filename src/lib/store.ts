@@ -12,7 +12,8 @@ export const pageStatusStore: Writable<string> = writable();
 
 export const draggedTaskStore: Writable<{ dragged: TaskProps | undefined, end: TaskProps | undefined,endPosition: {x: number, y: number, pos: DragPlaceholderPlace} | undefined }> = writable({dragged : undefined, end: undefined, endPosition: undefined});
 
-export async function setStore(store: Writable<any>, data: Response) {
-    let json = await data.json();
-    store.set(json);
+export const breadcrumbsStore: Writable<{name: string, path: string, id: string}[]> = writable([]);
+
+export async function setStore(store: Writable<any>, data: any) {
+    store.set(data);
 }

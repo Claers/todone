@@ -4,32 +4,35 @@
 
 <script lang="ts">
 	import './TaskList.scss';
-	import TaskListFull from '$lib/components/TaskLists/TaskListFull/TaskListFull.svelte';
-	import TaskListCompact from '$lib/components/TaskLists/TaskListCompact/TaskListCompact.svelte';
-	import TaskListMini from '$lib/components/TaskLists/TaskListMini/TaskListMini.svelte';
-	import { tasksStore } from '$lib/store';
 	import { useQueryClient } from '@tanstack/svelte-query';
-	import type { TaskProps } from '$lib/components/Task/Task.svelte';
-	import { onMount } from 'svelte';
+	import Task, { TaskStyle, type TaskProps } from '$lib/components/Task/Task.svelte';
 	import { draggedTaskStore } from '$lib/store';
 	import { DragPlaceholderPlace } from '../Draggable/Draggable.svelte';
-	import { json } from '@sveltejs/kit';
+	import { editTask, editTaskBatch } from '$lib/tasks';
+	import { flip } from 'svelte/animate';
+	import CreateNewTask from '../CreateNewTask/CreateNewTask.svelte';
 	// Get QueryClient from the context
 	const queryClient = useQueryClient();
 
-	let tasks: TaskProps[] | undefined = [];
+	// let tasks: TaskProps[] | undefined = [];
 
 	// $: tasks = $tasksStore?.sort((taskA, taskB) => {
 	// 	return taskA.order - taskB.order;
 	// });
 
-	tasksStore.subscribe((data) => {
-		tasks = data?.sort((taskA, taskB) => {
-			return taskA.order - taskB.order;
-		});
-		reconstructOrder();
+	// tasksStore.subscribe((data) => {
+	// 	console.log(data);
+	// 	tasks = data?.sort((taskA, taskB) => {
+	// 		return taskA.order - taskB.order;
+	// 	});
+	// 	reconstructOrder();
+	// });
+	// $: console.log(tasks);
+
+	export let tasks: TaskProps[] = [];
+	$: tasks = tasks.sort((taskA, taskB) => {
+		return taskA.order - taskB.order;
 	});
-	$: console.log(tasks);
 	function onDragEnd() {
 		if (draggedTaskStore) {
 			let draggedElement = $draggedTaskStore.dragged;
@@ -47,21 +50,17 @@
 				end: undefined,
 				endPosition: undefined
 			});
-			fetch('/api/tasks', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(
-					tasks?.map((task) => {
-						return {
-							id: task.id,
-							order: task.order
-						};
-					})
-				)
+			editTaskBatch(
+				tasks?.map((task) => {
+					return {
+						id: task.id,
+						order: task.order
+					} as TaskProps;
+				}),
+				queryClient
+			).then(() => {
+				queryClient.refetchQueries('tasks');
 			});
-			queryClient.invalidateQueries('tasks');
 		}
 	}
 
@@ -98,16 +97,36 @@
 	}
 
 	let size: number | null;
+	const dragDuration = 300;
 </script>
 
 <svelte:window bind:innerWidth={size} />
 
-{#if size}
+<!-- {#if size}
 	{#if size > 1024}
-		<TaskListFull {tasks} on:onDragEnd={onDragEnd} />
+		<TaskListFull bind:tasks on:onDragEnd={onDragEnd} />
 	{:else if size > 768}
-		<TaskListCompact {tasks} on:onDragEnd={onDragEnd} />
+		<TaskListCompact bind:tasks on:onDragEnd={onDragEnd} />
 	{:else}
-		<TaskListMini {tasks} on:onDragEnd={onDragEnd} />
+		<TaskListMini bind:tasks on:onDragEnd={onDragEnd} />
 	{/if}
-{/if}
+{/if} -->
+<div class="flex flex-col divide-y-2 md:flex-wrap md:flex-row md:divide-y-0 md:gap-2">
+	{#await tasks}
+		<div class="flex justify-center items-center">
+			<div class="animate-spin rounded-full h-32 w-32 border-b-2" />
+		</div>
+	{:then}
+		{#if tasks}
+			{#each tasks as task (task.id)}
+				<div
+					animate:flip={{ duration: dragDuration }}
+					class="border-dashed border-surface-500 md:border-none"
+				>
+					<Task {task} on:onDragEnd />
+				</div>
+			{/each}
+		{/if}
+		<CreateNewTask />
+	{/await}
+</div>

@@ -4,6 +4,7 @@
 
 <script lang="ts">
 	import Task, { TaskStyle, type TaskProps } from '$lib/components/Task/Task.svelte';
+	import NewTaskFull from '$lib/components/Tasks/NewTaskFull/NewTaskFull.svelte';
 	import { flip } from 'svelte/animate';
 
 	const dragDuration = 300;
@@ -24,5 +25,6 @@
 				</div>
 			{/each}
 		{/if}
+		<NewTaskFull />
 	{/await}
 </div>

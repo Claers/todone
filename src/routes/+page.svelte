@@ -1,19 +1,55 @@
 <script lang="ts">
 	// import TaskList from '$lib/components/TaskList/TaskList.svelte';
 	// import TaskStatusList from '$lib/components/TaskStatusList/TaskStatusList.svelte';
-	import { tasksStore, setStore, pageStatusStore } from '$lib/store';
+	import { tasksStore, setStore, pageStatusStore, breadcrumbsStore } from '$lib/store';
 	import { createQuery, type CreateQueryResult } from '@tanstack/svelte-query';
 	import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
 	import TaskList from '$lib/components/TaskList/TaskList.svelte';
-
-	const tasksQuery = createQuery({ queryKey: ['tasks'], queryFn: () => fetch('api/tasks') });
-	$: if ($tasksQuery.data) setStore(tasksStore, $tasksQuery.data);
-
-	// const taskStatusQuery = createQuery({
-	// 	queryKey: ['taskStatus'],
-	// 	queryFn: () => fetch('api/tasksStatus')
+	import { Pages, addPathToBreadcrumbs } from '$lib/breadcrums';
+	import type { TaskProps } from '$lib/components/Task/Task.svelte';
+	import Fa from 'svelte-fa/src/fa.svelte';
+	import { faSearch } from '@fortawesome/free-solid-svg-icons';
+	// const tasksQuery = createQuery({
+	// 	queryKey: ['tasks'],
+	// 	queryFn: async () => (await fetch('api/tasks')).json()
 	// });
-	// $: if ($taskStatusQuery.data) setStore(tasksStatusStore, $taskStatusQuery.data);
+	let filter: string = 'todo';
+	// $: if ($tasksQuery) setStore(tasksStore, $tasksQuery);
+	let filteredTasks: TaskProps[] = [];
+	let search = '';
+	tasksStore.subscribe(async (value) => {
+		if (!value) return;
+		let data = await value;
+		filteredTasks = filterTask(data);
+		// setStore(tasksStore, filteredTasks);
+	});
+	function filterTask(tasks: TaskProps[]) {
+		if (!tasks) return [];
+		let filteredTasks = tasks;
+		// If search is not empty, filter tasks
+		if (search) {
+			console.log('search');
+			console.log(search.toLowerCase());
+			filteredTasks = tasks.filter((task) =>
+				task.title.toLowerCase().includes(search.toLowerCase())
+			);
+		}
+		switch (filter) {
+			case 'todo':
+				return filteredTasks.filter((task) => !task.done);
+			case 'all':
+				return filteredTasks;
+			case 'done':
+				return filteredTasks.filter((task) => task.done);
+			default:
+				return filteredTasks;
+		}
+	}
+
+	function filterActualTasks() {
+		filteredTasks = filterTask($tasksStore);
+		// setStore(tasksStore, filteredTasks);
+	}
 
 	let pageStatus: string = 'tasks';
 	pageStatusStore.subscribe((value) => {
@@ -26,51 +62,34 @@
 		pageStatusStore.set(status);
 	}
 
-	let filter: string = 'all';
-
-	// $: $tasksQuery?.data?.json().then((data) => (tasksData = data));
-	// $: tasksStore.set(tasksData);
+	addPathToBreadcrumbs('Acceuil', '/', Pages.HOME, $breadcrumbsStore);
 </script>
 
-<!-- <Drawer>
-	{#if $drawerStore.meta?.type === Drawers.CreateTaskStatus}
-		<CreateTaskStatus />
-	{/if}
-</Drawer> -->
-<!-- 
-<div class="flex flex-col w-full h-full items-center">
-	<div class="flex items-center justify-center w-full h-fit m-4 p-4 gap-8 text-blue-500">
-		<button
-			class={pageStatus === 'tasks' ? 'text-green-500' : ''}
-			on:click|stopPropagation={() => {
-				ChangePageStatus('tasks');
-			}}
-		>
-			<h2 class="h2">Tasks</h2>
-		</button>
-		<h2 class="h2">-</h2>
-		<button
-			class={pageStatus === 'taskStatus' ? 'text-green-500' : ''}
-			on:click|stopPropagation={() => {
-				ChangePageStatus('taskStatus');
-			}}
-		>
-			<h2 class="h2">Tasks Status</h2>
-		</button>
-	</div>
-	{#if pageStatus === 'tasks'}
-		<TaskList />
-	{:else if pageStatus === 'taskStatus'}
-		<TaskStatusList />
-	{/if}
-</div> -->
-<div class="container p-10 space-y-4 w-full md:max-w-[1024px] lg:max-w-none">
+<div class="container p-4 sm:p-6 lg:p-10 space-y-4 w-full md:max-w-[1024px] lg:max-w-none">
 	<!-- Buttons for filters -->
-	<RadioGroup active="variant-filled-primary" hover="hover:variant-soft-primary">
-		<RadioItem bind:group={filter} name="filter" value="all">All</RadioItem>
-		<RadioItem bind:group={filter} name="filter" value="done">Done</RadioItem>
-		<RadioItem bind:group={filter} name="filter" value="undone">Undone</RadioItem>
-	</RadioGroup>
-	<hr />
-	<TaskList />
+	<div class="flex gap-2 flex-wrap">
+		<RadioGroup active="variant-filled-primary" hover="hover:variant-soft-primary">
+			<RadioItem bind:group={filter} name="filter" value="todo" on:change={filterActualTasks}
+				>Todo</RadioItem
+			>
+			<RadioItem bind:group={filter} name="filter" value="done" on:change={filterActualTasks}
+				>Done</RadioItem
+			>
+			<RadioItem bind:group={filter} name="filter" value="all" on:change={filterActualTasks}
+				>All</RadioItem
+			>
+		</RadioGroup>
+		<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] max-w-[40rem]">
+			<div class="input-group-shim"><Fa icon={faSearch} /></div>
+			<input
+				class="!bg-surface-800"
+				type="search"
+				placeholder="Search..."
+				bind:value={search}
+				on:change={filterActualTasks}
+				on:keyup={filterActualTasks}
+			/>
+		</div>
+	</div>
+	<TaskList bind:tasks={filteredTasks} />
 </div>

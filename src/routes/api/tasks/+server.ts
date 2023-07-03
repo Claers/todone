@@ -18,6 +18,15 @@ export const POST: RequestHandler = async ({ request }) => {
     const data: TaskProps | TaskProps[] = await request.json();
     const id = data.id;
     delete data.id
+    console.log(data);
+    if (data.delete) {
+        const deletedData = await db.task.delete({
+            where: { id: id },
+        });
+        return json({
+            message: "Task deleted",
+        });
+    }
     let updatedData;
     if (!id) {
         updatedData = [];
