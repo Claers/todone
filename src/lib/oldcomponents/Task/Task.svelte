@@ -26,7 +26,7 @@
 
 	export let task: TaskProps;
 	export let status: number | undefined;
- 
+
 	// const tasksQuery = createQuery({ queryKey: ['tasks'], queryFn: () => fetch('api/tasks') });
 	// $: if ($tasksQuery.data) setStore(tasksStore, $tasksQuery.data);
 	let openDescription = false;
@@ -111,7 +111,7 @@
 			})
 			.catch((err) => console.log(err));
 	}
-	$: console.log('Description: ', description);
+	// $: console.log('Description: ', description);
 </script>
 
 <div class="flex flex-col lg:gap-4 gap-2 !border-b-2">

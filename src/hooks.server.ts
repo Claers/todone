@@ -1,19 +1,19 @@
-// import type { Handle } from '@sveltejs/kit';
 
-// export const handle: Handle = async ({ resolve, event }) => {
-//     let cors = '*';
+// export const handle = SvelteKitAuth({
+//   providers: [
+//         Credentials({
+//             credentials: {
+//                 username: { label: "Username" },
+//                 password: { label: "Password", type: "password" }
+//             },
+//             async authorize(credentials) { 
+//                 console.log(credentials);
+//                 // const response = await fetch("/api/login");
+//                 // const data = await response.json();
+//                 return {"name": "test"} as User;
+//             }
+//         })
+//     ]
+// });
 
-//     if(event.request.method === 'OPTIONS' && cors) {
-//         return new Response(null, {
-//         headers: {
-//             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-//             'Access-Control-Allow-Origin': cors,
-//             'Access-Control-Allow-Headers': '*'
-//         }
-//     });
-//     }
-
-//     const response = await resolve(event);
-//     response.headers.append('Access-Control-Allow-Origin', cors);
-//     return response;
-// };
+// import { GITHUB_ID, GITHUB_SECRET } from "$env/static/private";

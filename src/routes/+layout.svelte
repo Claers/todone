@@ -22,15 +22,16 @@
 	import BurgerMenu from '$lib/components/BurgerMenu/BurgerMenu.svelte';
 	import Logo from '$lib/components/Logo/Logo.svelte';
 	import Breadcrums from '$lib/components/Breadcrums/Breadcrums.svelte';
-	export let data: LayoutData;
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import { Modal } from '@skeletonlabs/skeleton';
 	import { Drawers } from '$lib/drawers/drawers';
 	import CreateTask from '$lib/drawers/CreateTask/CreateTask.svelte';
+	import { goto } from '$app/navigation';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
+	export let data: LayoutData;
 	// const tasksData = data.queryClient.fetchQuery('tasks', async () =>
 	// 	(await fetch('api/tasks')).json()
 	// );
@@ -45,6 +46,13 @@
 				drawerStore.close();
 			}
 		}
+	}
+
+	async function logOut() {
+		// Clear the cookies
+		await fetch('/api/logout');
+		// Refresh the page
+		window.location.reload();
 	}
 </script>
 
@@ -67,6 +75,13 @@
 				<BurgerMenu />
 			</svelte:fragment>
 			<Breadcrums />
+			<svelte:fragment slot="trail">
+				{#if data.session}
+					<button class="btn variant-filled-surface" on:click={logOut}>Log Out</button>
+				{:else}
+					<button class="btn variant-filled-surface" on:click={() => goto('/login')}>Log In</button>
+				{/if}
+			</svelte:fragment>
 		</AppBar>
 	</div>
 

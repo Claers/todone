@@ -10,7 +10,13 @@
 	import { formatDateForDateInput } from '$lib/utils';
 	import type { TaskProps } from '$lib/components/Task/Task.svelte';
 	import Fa from 'svelte-fa/src/fa.svelte';
-	import { faSave, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+	import {
+		faSave,
+		faEdit,
+		faTrash,
+		faCancel,
+		faBackspace
+	} from '@fortawesome/free-solid-svg-icons';
 
 	const queryClient = useQueryClient();
 
@@ -53,51 +59,86 @@
 		'event.target.style.height = "";event.target.style.height = event.target.scrollHeight + "px"';
 </script>
 
-<div
-	class="container w-full h-[3rem] shadow-sm flex p-2 border-primary-800 border-b-2 gap-2 bg-surface-700"
->
-	<button
-		class="btn bg-error-500 btn-sm"
-		on:click={() =>
-			deleteTask(task, queryClient).then(() => {
-				goBack();
-				window.history.back();
-			})}><Fa class="mr-2" icon={faTrash} />Supprimer</button
-	>
-	{#if !isEdit}
-		<button class="btn variant-filled-tertiary btn-sm" on:click={setEditable}
-			><Fa class="mr-2" icon={faEdit} />Modifier</button
-		>
-	{:else}
-		<button
-			class="btn variant-filled-primary btn-sm"
-			on:click={() =>
-				editTask(editedTask, queryClient)
-					.then(setNotEditable)
-					.finally(() => prepareEditTask())}
-			><Fa class="mr-2" icon={faSave} />Sauvegarder
-		</button>
-	{/if}
-</div>
 <div class="container p-6 space-y-4 w-full md:max-w-[1024px] lg:max-w-none bg-surface-700 h-full">
 	{#if task}
-		{#if isEdit}
-			<div class="border-primary-800 border-2 rounded-md p-4 flex gap-3 flex-col bg-surface-800">
-				<div class="flex gap-2 align-middle">
-					<h3 class="h3">Tâche :</h3>
-					<input class="input w-[85%] input-custom" type="text" bind:value={editedTask.title} />
-				</div>
+		<div class="border-primary-800 border-2 rounded-md p-4 flex gap-3 flex-col bg-surface-800">
+			<div class="flex gap-4">
 				<button
-					class="flex gap-2 items-center"
-					on:click|preventDefault={() => {
-						setTaskDone(task, !task?.done, queryClient);
-					}}
+					class="btn variant-ghost btn-sm"
+					on:click={() => {
+						goBack();
+						window.history.back();
+					}}><Fa class="mr-2" icon={faBackspace} />Retour</button
 				>
-					<input class="checkbox input-custom" type="checkbox" bind:checked={editedTask.done} />
-					<p>Marquer comme terminé</p></button
+				<button
+					class="btn bg-error-500 btn-sm"
+					on:click={() =>
+						deleteTask(task, queryClient).then(() => {
+							goBack();
+							window.history.back();
+						})}><Fa class="mr-2" icon={faTrash} />Supprimer</button
 				>
+				{#if !isEdit}
+					<button class="btn variant-filled-tertiary btn-sm" on:click={setEditable}
+						><Fa class="mr-2" icon={faEdit} />Modifier</button
+					>
+				{:else}
+					<button
+						class="btn variant-filled-primary btn-sm"
+						on:click={() =>
+							editTask(editedTask, queryClient)
+								.then(setNotEditable)
+								.finally(() => prepareEditTask())}
+						><Fa class="mr-2" icon={faSave} />Sauvegarder
+					</button>
+					<button
+						class="btn btn-sm"
+						on:click={() => {
+							prepareEditTask();
+							isEdit = false;
+						}}
+						><Fa class="mr-2" icon={faCancel} />Annuler
+					</button>
+				{/if}
 			</div>
-			<div class="border-primary-800 border-2 rounded-md p-4 flex gap-3 flex-col bg-surface-800">
+			<div class="flex gap-4 flex-col">
+				<!-- Name -->
+				{#if isEdit}
+					<div class="flex gap-2 align-middle">
+						<h3 class="h3">Tâche :</h3>
+						<input class="input w-[85%] input-custom" type="text" bind:value={editedTask.title} />
+					</div>
+				{:else}
+					<div class="flex gap-2 items-baseline">
+						<h3 class="h3">Tâche :</h3>
+						<p class="cursor-pointer" on:click={setEditable}>{task.title}</p>
+					</div>
+				{/if}
+				<!-- Is Done -->
+				{#if isEdit}
+					<button
+						class="flex gap-2 items-center"
+						on:click|preventDefault={() => {
+							setTaskDone(task, !task?.done, queryClient);
+						}}
+					>
+						<input class="checkbox input-custom" type="checkbox" bind:checked={editedTask.done} />
+						<p>Marquer comme terminé</p></button
+					>
+				{:else}
+					<button
+						class="flex gap-2 items-center"
+						on:click|preventDefault={() => {
+							setTaskDone(task, !task?.done, queryClient);
+						}}
+					>
+						<input class="checkbox border-2" type="checkbox" checked={task.done} />
+						<p>Marquer comme terminé</p></button
+					>
+				{/if}
+			</div>
+			<!-- Due Date -->
+			{#if isEdit}
 				<div class="flex gap-2 items-center">
 					<p>A terminer pour :</p>
 					<input
@@ -107,6 +148,14 @@
 						bind:value={editedTask.dueDate}
 					/>
 				</div>
+			{/if}
+			<p on:click={setEditable} class="flex gap-2 items-center cursor-pointer">
+				Temps restant :<DateToText
+					startDate={new Date()}
+					endDate={task.dueDate ? task.dueDate : new Date()}
+				/>
+			</p>
+			{#if isEdit}
 				<p>Description :</p>
 				<textarea
 					class="input textarea input-custom"
@@ -118,41 +167,15 @@
 						eval(resizeAreaStyle);
 					}}
 				/>
-			</div>
-		{:else}
-			<div class="border-primary-800 border-2 rounded-md p-4 flex gap-3 flex-col bg-surface-800">
-				<div class="flex gap-2 items-baseline">
-					<h3 class="h3">Tâche :</h3>
-					<p on:click={setEditable}>{task.title}</p>
-				</div>
-				<button
-					class="flex gap-2 items-center"
-					on:click|preventDefault={() => {
-						setTaskDone(task, !task?.done, queryClient);
-					}}
-				>
-					<input class="checkbox border-2" type="checkbox" checked={task.done} />
-					<p>Marquer comme terminé</p></button
-				>
-			</div>
-			<div class="border-primary-800 border-2 rounded-md p-4 flex gap-3 flex-col bg-surface-800">
-				<p on:click={setEditable} class="flex gap-2 items-center">
-					Temps restant :<DateToText
-						startDate={new Date()}
-						endDate={task.dueDate ? task.dueDate : new Date()}
-					/>
-				</p>
+			{:else}
 				<p>Description :</p>
 				{#if task.description == ''}
-					<p class="italic" on:click={setEditable}>Aucune description</p>
+					<p class="italic cursor-pointer" on:click={setEditable}>Aucune description</p>
 				{:else}
 					<p on:click={setEditable}>{task.description}</p>
 				{/if}
-				<!-- <p>{task.created_at}</p>
-				<p>{task.updated_at}</p>
-				<p>{task.deleted_at}</p> -->
-			</div>
-		{/if}
+			{/if}
+		</div>
 	{:else}
 		<h1>Task not found</h1>
 	{/if}

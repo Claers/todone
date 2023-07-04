@@ -6,4 +6,4 @@
 	import './Logo.scss';
 </script>
 
-<strong class="text-xl uppercase">Skeleton</strong>
+<img src="/todonelogo.svg" width="128" />

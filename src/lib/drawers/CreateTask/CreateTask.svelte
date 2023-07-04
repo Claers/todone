@@ -30,7 +30,7 @@
 		class="contents"
 		use:enhance={() => {
 			return async ({ result, update }) => {
-				console.log(result);
+				// console.log(result);
 				if (result.type === 'success') {
 					queryClient.refetchQueries('tasks');
 					newTask = { ...emptyTask };

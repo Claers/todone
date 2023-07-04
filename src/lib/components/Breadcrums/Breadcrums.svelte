@@ -12,7 +12,7 @@
 	}
 </script>
 
-<ol class="breadcrumb">
+<ol class="breadcrumb hidden md:block">
 	{#if $breadcrumbsStore}
 		{#if $breadcrumbsStore.length > 0}
 			{#each $breadcrumbsStore as breadcrumb (breadcrumb)}

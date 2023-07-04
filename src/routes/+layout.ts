@@ -3,7 +3,7 @@ import { browser } from '$app/environment';
 import { QueryClient } from '@tanstack/svelte-query';
 import { tasksStore } from '$lib/store';
 
-export const load = (async ({fetch}) => {
+export const load = (async ({fetch, data}) => {
 	const queryClient = new QueryClient({
 		defaultOptions: {
 			queries: {
@@ -16,8 +16,10 @@ export const load = (async ({fetch}) => {
 	let taskData = await queryClient.fetchQuery({
 		queryKey: ['tasks'], queryFn: async () => {
 			let data = await (await fetch("/api/tasks")).json();
+			if (!data || data.status === 401) {
+				data = [];
+			}
 			data.map((task: any) => {
-				
 				task.dueDate = task.dueDate ? new Date(task.dueDate) : new Date();
 				return task;
 			});
@@ -27,5 +29,5 @@ export const load = (async ({fetch}) => {
 	});
 	
 	// queryClient.fetchQuery({queryKey :['taskStatus'], queryFn: async () => (await fetch("api/tasksStatus")).json()});
-    return { queryClient};
+    return { ...data, queryClient};
 }) satisfies LayoutLoad;

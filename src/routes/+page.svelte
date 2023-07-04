@@ -28,8 +28,8 @@
 		let filteredTasks = tasks;
 		// If search is not empty, filter tasks
 		if (search) {
-			console.log('search');
-			console.log(search.toLowerCase());
+			// console.log('search');
+			// console.log(search.toLowerCase());
 			filteredTasks = tasks.filter((task) =>
 				task.title.toLowerCase().includes(search.toLowerCase())
 			);

@@ -123,7 +123,7 @@
 					animate:flip={{ duration: dragDuration }}
 					class="border-dashed border-surface-500 md:border-none"
 				>
-					<Task {task} on:onDragEnd />
+					<Task {task} on:onDragEnd={onDragEnd} />
 				</div>
 			{/each}
 		{/if}

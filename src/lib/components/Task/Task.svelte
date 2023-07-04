@@ -27,7 +27,7 @@
 	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa/src/fa.svelte';
 	import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-	import { deleteTask } from '$lib/tasks';
+	import { deleteTask, setTaskDone } from '$lib/tasks';
 	import { useQueryClient } from '@tanstack/svelte-query';
 
 	export let style: TaskStyle = TaskStyle.Full;

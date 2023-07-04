@@ -3,14 +3,15 @@ import { fail, type Actions } from '@sveltejs/kit';
 import db from "$lib/server/database";
 import type { Task } from '@prisma/client';
 import type { TaskProps } from '$lib/components/Task/Task.svelte';
-
+import {getUserId} from '$lib/server/user';
 
 export const load = (async () => {
     return {};
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-    create: async ({ request }) => { 
+    create: async ({ request, cookies }) => { 
+        const userId = getUserId(cookies.get('jwt'));
         const formData: FormData = await request.formData();
         const title = formData.get('title');
         let fails = [];
@@ -33,7 +34,8 @@ export const actions: Actions = {
             description: formData.get('description') as string,
             done: formData.get('done') === 'true' ? true : false,
             dueDate: new Date(formData.get('dueDate') as string),
-            order: order + 1,
+            order: order + 1,   
+            userId: userId
         }
         const task = await db.task.create({ data: taskData })
         return {
